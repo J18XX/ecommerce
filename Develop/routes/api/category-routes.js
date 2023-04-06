@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { Category, Product } = require('../../models');
 
 // The `/api/categories` endpoint
-// 1st way
+
 router.get('/', (req, res) => {
   // find all categories
   Category.findAll({
@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
   })
     .then(dbCategoryData => {
       if(!dbCategoryData) {
-        res.status(404).json({message: 'Not Found'});
+        res.status(404).json({message: 'Categorys Not Found'});
         return;
       }
       res.json(dbCategoryData);
@@ -40,7 +40,7 @@ router.get('/:id', (req, res) => {
   })
   .then(dbCategoryData => {
     if(!dbCategoryData) {
-      res.status(404).json({message: 'Not Found'});
+      res.status(404).json({message: 'No Category Found with this id'});
       return;
     }
     res.json(dbCategoryData);
@@ -86,22 +86,24 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
-  Category.destroy({
+  try {
+    const categoryData = await Category.destroy({
     where: {
       id: req.params.id
     }
-  })
-  .then(dbCategoryData => {
-    if(!dbCategoryData) {
-      res.status(404).json({message: 'Not Found with this id.'});
+  });
+
+    if (!categoryData) {
+      res.status(404).json({ message: 'No category found with this id!' });
       return;
     }
-    res.json(dbCategoryData);
-  })
-  .catch(err => {
-    console.log(err);
-    res.status(500).json(err)
-  });
+
+    res.status(200).json(categoryData);
+  } catch (err) {
+    res.status(500).json(err);
+
+  }
+  
 });
 
 module.exports = router;
